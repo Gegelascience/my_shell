@@ -10,7 +10,7 @@ use std::process::Child;
 fn main() {
     loop {
         print!("> ");
-        stdout().flush();
+        let _ = stdout().flush();
 
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
@@ -70,7 +70,7 @@ fn main() {
 
         if let Some(mut final_command) = previous_command {
             // attente resultat derniere commande
-            final_command.wait();
+            let _ = final_command.wait();
         }
 
                  
