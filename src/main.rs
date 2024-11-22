@@ -31,8 +31,10 @@ fn main() {
                         //print!("{:?}",last_input);
                         //input = last_input;
                         let old_input: String =rx.recv().unwrap();
-                        
-                        print!("{:?}",old_input.trim());
+                        print!("{}\n",old_input.trim());
+                        let _ = stdout().flush();
+                        execute_command(old_input);
+                        print!("> ");
                         let _ = stdout().flush();
                     }
                     /*if vk == Vk::Escape {
@@ -57,10 +59,22 @@ fn main() {
         // recuperation de la commande et des parametres avec trim
         tx.send(input.clone()).unwrap();
 
-        let mut commands = input.trim().split(" | ").peekable();
-        let mut previous_command = None;
+        
+        let should_quit= execute_command(input);
+        if should_quit {
+            return
+        }
 
-        while let Some(command) = commands.next()  {
+    }
+    
+}
+
+fn execute_command(input:String) -> bool {
+    let mut commands = input.trim().split(" | ").peekable();
+    let mut previous_command = None;
+    let mut should_exit = false;
+
+    while let Some(command) = commands.next()  {
             let mut parts = command.trim().split_whitespace();
             let command_opt = parts.next();
 
@@ -77,7 +91,7 @@ fn main() {
                                 eprintln!("{}", e);
                             }
                         },
-                        "exit" => return,
+                        "exit" => should_exit = true,
                         command => {
                             let stdin = previous_command
                                 .map_or(
@@ -115,15 +129,12 @@ fn main() {
             
 
            
-        }
-
-        if let Some(mut final_command) = previous_command {
-            // attente resultat derniere commande
-            let _ = final_command.wait();
-        }
-
-                 
-
     }
-    
+
+    if let Some(mut final_command) = previous_command {
+        // attente resultat derniere commande
+        let _ = final_command.wait();
+    }
+
+    return should_exit;
 }
